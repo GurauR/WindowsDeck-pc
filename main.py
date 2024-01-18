@@ -98,6 +98,14 @@ def get_ip():
     return ipconfig
 
 
+def get_hostname():
+    hostname = subprocess.run(
+        'hostname',
+        capture_output=True, text=True).stdout.replace("\n", "")
+
+    return hostname
+
+
 def is_audio_muted():
     devices = AudioUtilities.GetSpeakers()
     interface = devices.Activate(
@@ -114,11 +122,13 @@ if __name__ == "__main__":
     master_volume = get_master_volume()
     muted = is_audio_muted()
     ipconfig = get_ip()
+    hostname = get_hostname()
 
     print(f"Master Volume: {master_volume}")
     print(f"Is Muted: {muted}")
     ipv4_addresses = re.findall(r'IPv4 Address\. .+? : (\d+\.\d+\.\d+\.\d+)', ipconfig.stdout)
     print(f"IpConfig: {ipv4_addresses}")
+    print(f"HostName: {hostname}")
 
 while True:
     client_socket, addr = server_socket.accept()
@@ -195,6 +205,10 @@ while True:
         elif 'prevTrack' in data:
 
             win32api.keybd_event(VK_MEDIA_PREV_TRACK, 0, KEYEVENTF_EXTENDEDKEY, 0)
+
+        elif 'hostname' in data:
+
+            output = get_hostname()
 
         elif '/SetValue' in data:
 
